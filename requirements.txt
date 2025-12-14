@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+sqlalchemy
+fastapi
+uvicorn
+streamlit
+matplotlib
+seaborn
+pytest
+httpx
