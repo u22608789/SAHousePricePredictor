@@ -56,6 +56,9 @@ def clean_data(df: pd.DataFrame) -> pd.DataFrame:
 
     return df
 
+from sklearn.ensemble import RandomForestRegressor
+from sklearn.compose import TransformedTargetRegressor
+
 def build_pipeline():
     """
     Builds the Scikit-Learn pipeline.
@@ -79,8 +82,12 @@ def build_pipeline():
             ('cat', categorical_transformer, categorical_features)
         ])
 
+    # Use Random Forest with Log Transformation on the target
+    rf = RandomForestRegressor(n_estimators=100, random_state=42)
     model = Pipeline(steps=[('preprocessor', preprocessor),
-                            ('regressor', LinearRegression())])
+                            ('regressor', TransformedTargetRegressor(regressor=rf, 
+                                                                   func=np.log1p, 
+                                                                   inverse_func=np.expm1))])
 
     return model
 
@@ -126,6 +133,11 @@ def train_and_evaluate():
     print(f"RMSE: {rmse:,.2f}")
     print(f"MAE: {mae:,.2f}")
     print(f"R2 Score: {r2:.4f}")
+
+    with open(os.path.join(base_dir, "metrics.txt"), "w") as f:
+        f.write(f"RMSE: {rmse:,.2f}\n")
+        f.write(f"MAE: {mae:,.2f}\n")
+        f.write(f"R2 Score: {r2:.4f}\n")
 
     # Save model
     model_path = os.path.join(base_dir, "model.joblib")
